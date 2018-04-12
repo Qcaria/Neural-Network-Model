@@ -5,7 +5,7 @@ Soy consciente que el modelo aquí propuesto se aleja mucho de ser bueno y que e
 ############################################################################################
 He escrito este código con los conocimientos que he obtenido siguiendo el curso online "Neural Networks and Deep Learning" de Andrew NG en coursera, por ello tiene similitudes con algunas funciones de los ejercicios de ese curso.
 
-La base de datos utilizada para entrenar el modelo es la "MNIST DATABASE of handwritten digits".
+La base de datos utilizada para entrenar el modelo es la "MNIST DATABASE of handwritten digits". En caso de querer probar el modelo hay que descomprimir el rar de la carpeta samples, ya que lo he subido comprimido por el límite de memoria de GitHub.
 
 La máxima precisión que he obtenido ha sido del 94% usando la configuración subida al repositorio.
 ############################################################################################
