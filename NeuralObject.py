@@ -76,10 +76,10 @@ class NeuralModel_V1_0:
     def __init__(self, raw_layers):
         layers = []
         activations = []
-        num = (1, 2, 3, 4, 5, 6, 7 , 8 , 9)
-
+        num = "123456789"
+        
         for i in range(len(raw_layers)):
-            if raw_layers[i][0] in str(num):
+            if raw_layers[i][0] in num:
                 activations.append("lin")
                 layers.append(int(raw_layers[i]))
             else:
@@ -138,7 +138,7 @@ class NeuralModel_V1_0:
                 print("El coste tras %d iteraciones es %f" % (i + 1, coste(AL, Y)))
 
     def test_bin(self, X, Y):
-        count = 0
+        count = 0.0
         m = Y.shape[1]
         cache, raw_ans = self.exe(X)
         ans = (raw_ans > 0.5)*1
@@ -148,4 +148,4 @@ class NeuralModel_V1_0:
                 count += 1
 
         accuracy = count*100/m
-        print(("El porcentaje de acierto es del %d" % accuracy) + '%')
+        print(("El porcentaje de acierto es del %.2f" % accuracy) + '%')
