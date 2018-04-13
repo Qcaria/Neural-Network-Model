@@ -16,7 +16,7 @@ El código es el siguiente:
 
 - Número sin letra: Activación lineal. Recomendado para salidas en las que se busque un número real cualquiera.
 - **t**: Tangente hiperbólica. Es la función que mejor resultado me ha dado en las capas intermedias con este modelo.
-- **r**: Función ReLU. Me está dando problemas de overflow y división por cero.
+- **r**: Función ReLU. Aún no he conseguido buenos resultados con esta función.
 - **l**: Leaky ReLU pendiente 0.01. Sin testear, imagino que pasará lo mismo que con la ReLU.
 - **s**: Función sigmoide. Recomendado para salidas binarias.
 
@@ -32,7 +32,6 @@ Métodos:
 - **.exe(X):** Ejecuta la red para los valores de entrada X. Devuelve caché, AL, donde caché es una lista con la activación de cada capa y AL es la activación de la última capa únicamente (el output).
 - **.train(X, Y, num_iterations, learning_rate):** Calibra los parámetros num_iteraciones veces con ratio de aprendizaje learning_rate.
 - **.test_bin(X, Y):** Compara la salida binaria de la red con input X y lo compara con los resultados reales almacenados en Y. Hace un print con el porcentaje de acierto de la red.
+- **.save(file_name):** Crea un archivo de nombre file_name (NN_save si no se especifica) en el que guarda la configuración de la red.
+- **.load(file_name):** Carga la configuración almacenada en el archivo especificado (NN_save si no se especifica).
 ############################################################################################
-Versiones futuras:
-
-Para la próxima acualización trataré de arreglar el bug de la relu e implementaré los métodos .save() y .load() para poder guardar y cargar redes ya entrenadas.
