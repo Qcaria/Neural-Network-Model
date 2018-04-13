@@ -1,14 +1,14 @@
 import numpy as np
 
 def sigmoid(z):
-    s = 1/(1+np.exp(-z))
+    s = 1./(1+np.exp(-z))
     return s
 
 def relu(z):
-    return np.maximum(0, z)
+    return z * (z > 0)
 
 def leaky(z):
-    return np.maximum(z*0.01, z)
+    return z * (z > 0) + z * 0.01 * (z <= 0)
 
 
 def initialize_parameters(layers):
@@ -42,13 +42,13 @@ def derived_activation(a, activation):
     if activation == "lin":
         return zeros + 1
     elif activation == "sig":
-        d = np.multiply(a, (1-a))
+        d = a * (1. - a)
     elif activation == "relu":
-        d = (a >= 0)*1
+        d = (a > 0) * 1.
     elif activation == "leaky":
-        d = (a < 0)*0.01 + (a >= 0)
+        d = (a <= 0) * 0.01 + (a > 0)* 1.
     elif activation == "tanh":
-        d = 1 - np.multiply(a, a)
+        d = 1. - a * a
     return d
 
 def backprop(dAl, activations, cache, parameters, l):
@@ -68,7 +68,7 @@ def backprop(dAl, activations, cache, parameters, l):
 
 def coste(AL, Y):
     m = Y.shape[1]
-    coste = -1 / m * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1.000000000001 - AL)) #El 1.000... reduce la aparicion del bug de la relu.
+    coste = -1 / m * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL)) #El 1.000... reduce la aparicion del bug de la relu.
     return coste
 
 class NeuralModel_V1_0:
@@ -120,11 +120,8 @@ class NeuralModel_V1_0:
         for i in range(num_iterations):
 
             cache, AL = self.exe(X)
-            #print(AL)
-            #print((AL == 0).any())
-            #print((AL == 1).any()) ##Da True para cierta iteracion si en dAL hay un 1 (y crashea)
-            #input(' ')
-            dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1.00000000001 - AL))   #Reduce los problemas de la relu
+            
+            dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL)) 
 
             for l in reversed(range(1, L + 1)):
                 grads = backprop(dAL, activations, cache, parameters, l)
