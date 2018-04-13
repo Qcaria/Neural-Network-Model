@@ -121,7 +121,7 @@ class NeuralModel_V1_0:
 
             cache, AL = self.exe(X)
             
-            dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL)) 
+            dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1. - AL)) 
 
             for l in reversed(range(1, L + 1)):
                 grads = backprop(dAL, activations, cache, parameters, l)
