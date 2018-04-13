@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def sigmoid(z):
     s = 1./(1+np.exp(-z))
     return s
@@ -40,13 +41,13 @@ def derived_activation(a, activation):
     zeros = np.zeros(a.shape)
 
     if activation == "lin":
-        return zeros + 1
+        return zeros + 1.
     elif activation == "sig":
-        d = a * (1. - a)
+        d = a*(1. - a)
     elif activation == "relu":
-        d = (a > 0) * 1.
+        d = (a > 0)*1.
     elif activation == "leaky":
-        d = (a <= 0) * 0.01 + (a > 0)* 1.
+        d = (a <= 0)*0.01 + (a > 0)*1.
     elif activation == "tanh":
         d = 1. - a * a
     return d
@@ -68,8 +69,21 @@ def backprop(dAl, activations, cache, parameters, l):
 
 def coste(AL, Y):
     m = Y.shape[1]
-    coste = -1 / m * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL)) #El 1.000... reduce la aparicion del bug de la relu.
+    coste = -1 / m * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1.00001 - AL))
     return coste
+
+def write_array(array, file):
+    for i in range(len(array)):
+        file.write(str(array[i]) + " ")
+    file.write("\n")
+
+def read_array(file, f = False):
+    line = file.readline()
+    if f:
+        return list(map(float, line.split()))
+    else:
+        return list(map(int, line.split()))
+
 
 class NeuralModel_V1_0:
 
@@ -77,7 +91,7 @@ class NeuralModel_V1_0:
         layers = []
         activations = []
         num = "123456789"
-        
+
         for i in range(len(raw_layers)):
             if raw_layers[i][0] in num:
                 activations.append("lin")
@@ -120,8 +134,8 @@ class NeuralModel_V1_0:
         for i in range(num_iterations):
 
             cache, AL = self.exe(X)
-            
-            dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1. - AL)) 
+
+            dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1.00001 - AL))
 
             for l in reversed(range(1, L + 1)):
                 grads = backprop(dAL, activations, cache, parameters, l)
@@ -145,4 +159,34 @@ class NeuralModel_V1_0:
                 count += 1
 
         accuracy = count*100/m
+
         print(("El porcentaje de acierto es del %.2f" % accuracy) + '%')
+
+    def save(self, file_name = "NN_save"):
+        L = len(self.layers)
+
+        with open(file_name, "w") as file:
+            write_array(self.layers, file)
+            write_array(self.activations, file)
+
+            for l in range(1, L):
+                write_array(self.parameters["b" + str(l)].T[0], file)
+
+            for l in range(1, L):
+                for i in range(len(self.parameters["W" + str(l)])):
+                    write_array(self.parameters["W" + str(l)][i], file)
+
+    def load(self, file_name = "NN_save"):
+        with open(file_name, "r") as file:
+            self.layers = read_array(file)
+            self.activations = file.readline().split()
+            L = len(self.layers)
+
+            for l in range(1, L):
+                self.parameters["b" + str(l)] = np.array(read_array(file, True), ndmin = 2).T
+
+            for l in range(1, L):
+                par = []
+                for n in range(self.layers[l]):
+                    par.append(read_array(file, True))
+                self.parameters["W" + str(l)] = np.array(par)
