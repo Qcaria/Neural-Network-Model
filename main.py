@@ -28,3 +28,4 @@ for b in range(30): #Número de paquetes utilizados en el entrenamiento
 #TESTEO EN LAS IMAGENES DEL TEST
 print('\nRed entrenada. Test:')
 Net.test_bin(X_test, Y_test)
+Net.save()

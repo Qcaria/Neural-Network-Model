@@ -1,14 +1,15 @@
 import numpy as np
 
+
 def sigmoid(z):
-    s = 1/(1+np.exp(-z))
+    s = 1./(1+np.exp(-z))
     return s
 
 def relu(z):
-    return np.maximum(0, z)
+    return z * (z > 0)
 
 def leaky(z):
-    return np.maximum(z*0.01, z)
+    return z * (z > 0) + z * 0.01 * (z <= 0)
 
 
 def initialize_parameters(layers):
@@ -40,15 +41,15 @@ def derived_activation(a, activation):
     zeros = np.zeros(a.shape)
 
     if activation == "lin":
-        return zeros + 1
+        return zeros + 1.
     elif activation == "sig":
-        d = np.multiply(a, (1-a))
+        d = a*(1. - a)
     elif activation == "relu":
-        d = (a >= 0)*1
+        d = (a > 0)*1.
     elif activation == "leaky":
-        d = (a < 0)*0.01 + (a >= 0)
+        d = (a <= 0)*0.01 + (a > 0)*1.
     elif activation == "tanh":
-        d = 1 - np.multiply(a, a)
+        d = 1. - a * a
     return d
 
 def backprop(dAl, activations, cache, parameters, l):
@@ -68,18 +69,31 @@ def backprop(dAl, activations, cache, parameters, l):
 
 def coste(AL, Y):
     m = Y.shape[1]
-    coste = -1 / m * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1.000000000001 - AL)) #El 1.000... reduce la aparicion del bug de la relu.
+    coste = -1 / m * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1.00001 - AL))
     return coste
+
+def write_array(array, file):
+    for i in range(len(array)):
+        file.write(str(array[i]) + " ")
+    file.write("\n")
+
+def read_array(file, f = False):
+    line = file.readline()
+    if f:
+        return list(map(float, line.split()))
+    else:
+        return list(map(int, line.split()))
+
 
 class NeuralModel_V1_0:
 
     def __init__(self, raw_layers):
         layers = []
         activations = []
-        num = (1, 2, 3, 4, 5, 6, 7 , 8 , 9)
+        num = "123456789"
 
         for i in range(len(raw_layers)):
-            if raw_layers[i][0] in str(num):
+            if raw_layers[i][0] in num:
                 activations.append("lin")
                 layers.append(int(raw_layers[i]))
             else:
@@ -120,11 +134,8 @@ class NeuralModel_V1_0:
         for i in range(num_iterations):
 
             cache, AL = self.exe(X)
-            #print(AL)
-            #print((AL == 0).any())
-            #print((AL == 1).any()) ##Da True para cierta iteracion si en dAL hay un 1 (y crashea)
-            #input(' ')
-            dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1.00000000001 - AL))   #Reduce los problemas de la relu
+
+            dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1.00001 - AL))
 
             for l in reversed(range(1, L + 1)):
                 grads = backprop(dAL, activations, cache, parameters, l)
@@ -138,7 +149,7 @@ class NeuralModel_V1_0:
                 print("El coste tras %d iteraciones es %f" % (i + 1, coste(AL, Y)))
 
     def test_bin(self, X, Y):
-        count = 0
+        count = 0.0
         m = Y.shape[1]
         cache, raw_ans = self.exe(X)
         ans = (raw_ans > 0.5)*1
@@ -148,4 +159,34 @@ class NeuralModel_V1_0:
                 count += 1
 
         accuracy = count*100/m
-        print(("El porcentaje de acierto es del %d" % accuracy) + '%')
+
+        print(("El porcentaje de acierto es del %.2f" % accuracy) + '%')
+
+    def save(self, file_name = "NN_save"):
+        L = len(self.layers)
+
+        with open(file_name, "w") as file:
+            write_array(self.layers, file)
+            write_array(self.activations, file)
+
+            for l in range(1, L):
+                write_array(self.parameters["b" + str(l)].T[0], file)
+
+            for l in range(1, L):
+                for i in range(len(self.parameters["W" + str(l)])):
+                    write_array(self.parameters["W" + str(l)][i], file)
+
+    def load(self, file_name = "NN_save"):
+        with open(file_name, "r") as file:
+            self.layers = read_array(file)
+            self.activations = file.readline().split()
+            L = len(self.layers)
+
+            for l in range(1, L):
+                self.parameters["b" + str(l)] = np.array(read_array(file, True), ndmin = 2).T
+
+            for l in range(1, L):
+                par = []
+                for n in range(self.layers[l]):
+                    par.append(read_array(file, True))
+                self.parameters["W" + str(l)] = np.array(par)
