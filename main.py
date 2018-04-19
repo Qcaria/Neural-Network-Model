@@ -1,14 +1,14 @@
 from NeuralObject import *
 import random
-from mnistload import *
+from dataload import *
 
 batches = []
 np.random.seed(1)
 
 #CARGA LAS IMAGENES DEL MNIST EN MATRICES
 print('\nCargando los sets...')
-X_test, Y_test = load_set("test")
-X_train, Y_train = load_set("train")
+X_test, Y_test = load_mnistset("test")
+X_train, Y_train = load_mnistset("train")
 
 #SEPARA EN PAQUETES
 for i in range(1, 31): #Separa las 60000 imágenes en paquetes de 2000
